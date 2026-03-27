@@ -6,7 +6,6 @@ public class Player extends GameObject {
 
     private double percentage;
     private double speed;
-    private Rectangle hitbox;
     private int leftKey;
     private int rightKey;
     private int upKey;
@@ -16,7 +15,6 @@ public class Player extends GameObject {
         super(x, y, 50, 100, "assets/Kho-removebg-preview.png");
         percentage = 0.0;
         speed = 200;
-        this.hitbox = new Rectangle((int) x, (int) y, 50, 100);
         this.leftKey = leftKey;
         this.rightKey = rightKey;
         this.upKey = upKey;

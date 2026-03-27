@@ -4,8 +4,8 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class GameObject {
 
-    private double x;
-    private double y;
+    public double x;
+    public double y;
     private int width;
     private int height;
     private Texture image;
@@ -27,6 +27,22 @@ public class GameObject {
 
     public double getY() {
         return y;
+    }
+
+    public void SetX(double x) {
+        this.x = x;
+    }
+
+    public void SetY(double y) {
+        this.y = y;
+    }
+
+    public int getHeight(){
+        return height;
+    }
+
+    public int getWidth(){
+        return width;
     }
 
     public Rectangle getHitbox() {

@@ -21,7 +21,7 @@ public class MyGame extends ApplicationAdapter {
         //players.add(player1);
         Player player2 = new Player(600, 300, Input.Keys.LEFT, Input.Keys.RIGHT, Input.Keys.UP, Input.Keys.DOWN);
         activeObjects.add(player2);
-        Platform main = new Platform(50, 50, 200, 200);
+        Platform main = new Platform(20, 100, 700, 70);
         activeObjects.add(main);
         //players.add(player2);
 
@@ -35,6 +35,57 @@ public class MyGame extends ApplicationAdapter {
         activeObjects.add(bottom);
         
     }
+
+    private void resolvePlayerCollision(Player player1, Player player2) {
+        // Calculate the overlap on both axes
+        double overlapX = calculateOverlapX(player1, player2);
+        double overlapY = calculateOverlapY(player1, player2);
+        
+        // Push players apart based on smallest overlap (more natural)
+        if (Math.abs(overlapX) < Math.abs(overlapY)) {
+            // Resolve horizontally
+            if (player1.getX() < player2.getX()) {
+                player1.setX(player1.getX() - overlapX / 2);
+                player2.setX(player2.getX() + overlapX / 2);
+            } else {
+                player1.setX(player1.getX() + overlapX / 2);
+                player2.setX(player2.getX() - overlapX / 2);
+            }
+        } else {
+            // Resolve vertically
+            if (player1.getY() < player2.getY()) {
+                player1.setY(player1.getY() - overlapY / 2);
+                player2.setY(player2.getY() + overlapY / 2);
+            } else {
+                player1.setY(player1.getY() + overlapY / 2);
+                player2.setY(player2.getY() - overlapY / 2);
+            }
+        }
+    }
+    
+    private double calculateOverlapX(Player p1, Player p2) {
+        double p1Right = p1.getX() + p1.getWidth();
+        double p2Right = p2.getX() + p2.getWidth();
+        
+        if (p1.getX() < p2.getX()) {
+            return p1Right - p2.getX();
+        } else {
+            return p2Right - p1.getX();
+        }
+    }
+    
+    private double calculateOverlapY(Player p1, Player p2) {
+        double p1Top = p1.getY() + p1.getHeight();
+        double p2Top = p2.getY() + p2.getHeight();
+        
+        if (p1.getY() < p2.getY()) {
+            return p1Top - p2.getY();
+        } else {
+            return p2Top - p1.getY();
+        }
+    }
+    
+
 
     //render() is the game loop, called approx 60 times per second
     @Override
@@ -55,6 +106,71 @@ public class MyGame extends ApplicationAdapter {
             a.move(deltaTime);
         }
         
+        //supposed to stop you from going through the platform
+
+        // Platform collisions
+for (int i = activeObjects.size() - 1; i >= 0; i--) {
+    GameObject current = activeObjects.get(i);
+    
+    // Check if current object is a Platform
+    if (current instanceof Platform) {
+        Platform platform = (Platform) current;
+        
+        // Check each player for collision
+        for (int j = 0; j < activeObjects.size(); j++) {
+            GameObject potentialPlayer = activeObjects.get(j);
+            
+            // Check if it's a Player
+            if (potentialPlayer instanceof Player) {
+                Player player = (Player) potentialPlayer;
+                
+                // Check if player overlaps with platform
+                if (player.getHitbox().overlaps(platform.getHitbox())) {
+                    // Calculate proper platform top position
+                    double platformTop = platform.getY() + platform.getHeight();
+                    double playerBottom = player.getY();
+                    
+                    // If player is falling from above
+                    if (playerBottom <= platformTop + 5) { 
+                        // Place player on top of platform
+                        player.setY(platformTop);
+                        
+                    }
+                }
+            }
+        }
+    }
+}
+
+//player collisions
+for (int i = 0; i < activeObjects.size(); i++) {
+    GameObject obj1 = activeObjects.get(i);
+    
+    // Check if obj1 is a Player
+    if (obj1 instanceof Player) {
+        Player player1 = (Player) obj1;
+        
+        // Check against all other objects
+        for (int j = i + 1; j < activeObjects.size(); j++) {
+            GameObject obj2 = activeObjects.get(j);
+            
+            // Check if obj2 is also a Player
+            if (obj2 instanceof Player) {
+                Player player2 = (Player) obj2;
+                
+                // Check if players overlap
+                if (player1.getHitbox().overlaps(player2.getHitbox())) {
+                    resolvePlayerCollision(player1, player2);
+                }
+            }
+        }
+    }
+}
+
+//deathzone collisions should kill (delete player object)
+
+
+
         //Note: Anything drawn must be between .begin() and .end()
         batch.begin();
         // TODO 6: Write a loop to iterate through activeObjects and call draw(batch).
